@@ -75,8 +75,8 @@ func (config *captureConfig) StartNonDNSTap(ctx context.Context) error {
 					continue
 				}
 
-				packetsCaptured.Update(int64(packets))
-				packetsDropped.Update(int64(drop))
+				packetsCaptured.Update(util.SafeUintToInt64(packets))
+				packetsDropped.Update(util.SafeUintToInt64(drop))
 
 				if packetsCaptured.Value() > 0 {
 					packetLossPercent.Update(float64(packetsDropped.Value()) * 100.0 / float64(packetsCaptured.Value()))

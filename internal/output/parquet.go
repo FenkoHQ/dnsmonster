@@ -107,7 +107,7 @@ func (config *parquetConfig) Initialize(ctx context.Context) error {
 		// }
 
 		var err error
-		config.writer, err = os.OpenFile(string(config.ParquetOutputPath), os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
+		config.writer, err = os.OpenFile(string(config.ParquetOutputPath), os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0600)
 		if err != nil {
 			log.Fatal(err)
 			return err
@@ -117,7 +117,7 @@ func (config *parquetConfig) Initialize(ctx context.Context) error {
 			parquet.BloomFilters(
 				parquet.SplitBlockFilter(10, "query_name"), //query_name is usually the A query question or response
 			),
-			parquet.WriteBufferSize(int(config.ParquetWriteBufferSize)), // 256KB
+			parquet.WriteBufferSize(util.SafeUintToInt(config.ParquetWriteBufferSize)), // 256KB
 			parquet.CreatedBy("dnsmonster", "version", "build"),         //TODO: bring real values here
 		)
 
@@ -200,12 +200,12 @@ func (config *parquetConfig) OutputWorker(ctx context.Context) {
 					DstIP:        data.DstIP,
 					Protocol:     data.Protocol,
 					QR:           uint32(QR),
-					Opcode:       uint32(data.DNS.Opcode),
+					Opcode:       util.SafeIntToUint32(data.DNS.Opcode),
 					Qclass:       uint32(q.Qclass),
 					Qtype:        uint32(q.Qtype),
 					EDNS:         uint32(edns),
 					DoBit:        uint32(doBit),
-					Rcode:        uint32(data.DNS.Rcode),
+					Rcode:        util.SafeIntToUint32(data.DNS.Rcode),
 					QueryName:    q.Name,
 					PacketLength: uint32(data.PacketLength),
 					Identity:     data.Identity,

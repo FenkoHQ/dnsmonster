@@ -118,7 +118,7 @@ func dnsResultToProto(d util.DNSResult) ([]byte, error) {
 		Identity:     d.Identity,
 		Version:      d.Version,
 		IsResponse:   d.DNS.Response,
-		Rcode:        uint32(d.DNS.Rcode),
+		Rcode:        util.SafeIntToUint32(d.DNS.Rcode),
 	}
 
 	if len(d.DNS.Question) > 0 {

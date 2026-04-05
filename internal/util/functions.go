@@ -22,6 +22,7 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"path/filepath"
 	"strings"
 	"sync"
 	"time"
@@ -155,7 +156,7 @@ func LoadDomainsCsv(Filename string) (*tst.TernarySearchTree, *tst.TernarySearch
 		scanner = bufio.NewScanner(limitedBody)
 
 	} else {
-		file, err := os.Open(Filename)
+		file, err := os.Open(filepath.Clean(Filename))
 		if err != nil {
 			return nil, nil, nil, fmt.Errorf("failed to open domain list file %s: %w", Filename, err)
 		}

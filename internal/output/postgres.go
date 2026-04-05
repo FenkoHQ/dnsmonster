@@ -110,7 +110,7 @@ func (psqConf psqlConfig) connectPsql(ctx context.Context) *pgxpool.Pool {
 func (psqConf psqlConfig) Output(ctx context.Context) {
 	defer close(psqConf.closeChannel)
 	var wg sync.WaitGroup
-	for i := 0; i < int(psqConf.PsqlWorkers); i++ {
+	for i := 0; i < util.SafeUintToInt(psqConf.PsqlWorkers); i++ {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
@@ -185,18 +185,18 @@ func (psqConf psqlConfig) OutputWorker(ctx context.Context) {
 					data.DstIP.To16(),
 					data.Protocol,
 					QR,
-					uint8(data.DNS.Opcode),
+					util.SafeIntToUint8(data.DNS.Opcode),
 					uint16(dnsQuery.Qclass),
 					uint16(dnsQuery.Qtype),
 					edns,
 					doBit,
 					fullQuery,
-					uint8(data.DNS.Rcode),
+					util.SafeIntToUint8(data.DNS.Rcode),
 					dnsQuery.Name,
 					data.PacketLength,
 				)
 
-				if int(c%psqConf.PsqlBatchSize) == div { // this block will never reach if batch delay is enabled
+				if util.SafeUintToInt(c%psqConf.PsqlBatchSize) == div { // this block will never reach if batch delay is enabled
 					br := conn.SendBatch(timeoutContext, batch)
 					_, err := br.Exec()
 					if err != nil {

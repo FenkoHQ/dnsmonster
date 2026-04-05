@@ -106,7 +106,7 @@ func (stdConfig stdoutConfig) stdoutOutputWorker(ctx context.Context) {
 func (stdConfig stdoutConfig) Output(ctx context.Context) {
 	defer close(stdConfig.closeChannel)
 	var wg sync.WaitGroup
-	for i := 0; i < int(stdConfig.StdoutOutputWorkerCount); i++ {
+	for i := 0; i < util.SafeUintToInt(stdConfig.StdoutOutputWorkerCount); i++ {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()

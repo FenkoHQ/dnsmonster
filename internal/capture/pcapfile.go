@@ -19,6 +19,7 @@ import (
 	"bufio"
 	"io"
 	"os"
+	"path/filepath"
 
 	"github.com/gopacket/gopacket"
 	"github.com/gopacket/gopacket/pcapgo"
@@ -37,7 +38,7 @@ func initializeOfflineCapture(fileName string, filter string) genericPacketHandl
 		f = os.Stdin
 	} else {
 		var err error
-		f, err = os.Open(fileName)
+		f, err = os.Open(filepath.Clean(fileName))
 		if err != nil {
 			return nil
 		}

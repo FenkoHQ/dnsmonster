@@ -20,7 +20,6 @@ import (
 	"crypto/tls"
 	"errors"
 	"fmt"
-	"math/rand"
 	"net/http"
 	"net/url"
 	"strings"
@@ -184,7 +183,6 @@ func (spConfig splunkConfig) Output(ctx context.Context) {
 	spConfig.connectMultiSplunkRetry()
 
 	batch := make([]util.DNSResult, 0, spConfig.SplunkBatchSize)
-	_ = rand.Int() // seed is automatic in Go 1.20+
 	ticker := time.NewTicker(spConfig.SplunkBatchDelay)
 
 	for {

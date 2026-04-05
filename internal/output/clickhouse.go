@@ -215,7 +215,7 @@ clickhouse folder for the file tables.sql
 func (chConfig clickhouseConfig) Output(ctx context.Context) {
 	defer close(chConfig.closeChannel)
 	g, gCtx := errgroup.WithContext(ctx)
-	for i := 0; i < int(chConfig.ClickhouseWorkers); i++ {
+	for i := 0; i < util.SafeUintToInt(chConfig.ClickhouseWorkers); i++ {
 		g.Go(func() error { return chConfig.clickhouseOutputWorker(gCtx) })
 	}
 	if err := g.Wait(); err != nil {
@@ -284,13 +284,13 @@ func (chConfig clickhouseConfig) clickhouseOutputWorker(ctx context.Context) err
 					data.DstIP.To16(),
 					data.Protocol,
 					QR,
-					uint8(data.DNS.Opcode),
+					util.SafeIntToUint8(data.DNS.Opcode),
 					uint16(dnsQuery.Qclass),
 					uint16(dnsQuery.Qtype),
 					edns,
 					doBit,
 					fullQuery,
-					uint8(data.DNS.Rcode),
+					util.SafeIntToUint8(data.DNS.Rcode),
 					dnsQuery.Name,
 					data.PacketLength,
 				)
@@ -298,7 +298,7 @@ func (chConfig clickhouseConfig) clickhouseOutputWorker(ctx context.Context) err
 					log.Warnf("Error while executing batch: %v", err)
 					clickhouseFailed.Inc(1)
 				}
-				if int(c%chConfig.ClickhouseBatchSize) == div {
+				if util.SafeUintToInt(c%chConfig.ClickhouseBatchSize) == div {
 					err = batch.Send()
 					if err != nil {
 						log.Warnf("Error while executing batch: %v", err)

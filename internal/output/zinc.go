@@ -117,7 +117,7 @@ func (zConfig zincConfig) Output(ctx context.Context) {
 				// add a newline to the end of the batch
 				batch = append(batch, '\n')
 			}
-			if c >= int(zConfig.ZincBatchSize) {
+			if c >= util.SafeUintToInt(zConfig.ZincBatchSize) {
 				// Batch size is reached first, flush and stop the timer
 				if err := zConfig.zincSendData(ctx, client, batch); err != nil {
 					log.Info(err)

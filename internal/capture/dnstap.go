@@ -93,25 +93,25 @@ func dnsTapMsgToDNSResult(msg []byte) (*util.DNSResult, error) {
 	var myDNSResult util.DNSResult
 	myDNSResult.Identity = string(dnstapObject.GetIdentity())
 	myDNSResult.Version = string(dnstapObject.GetVersion())
-	myDNSResult.IPVersion = uint8(*dnstapObject.GetMessage().SocketFamily)*2 + 2
+	myDNSResult.IPVersion = util.SafeInt32ToUint8(int32(*dnstapObject.GetMessage().SocketFamily)*2 + 2)
 	myDNSResult.SrcIP = dnstapObject.Message.GetQueryAddress()
-	myDNSResult.SrcPort = uint16(dnstapObject.Message.GetQueryPort())
+	myDNSResult.SrcPort = util.SafeUint32ToUint16(dnstapObject.Message.GetQueryPort())
 	myDNSResult.DstIP = dnstapObject.Message.GetResponseAddress()
-	myDNSResult.DstPort = uint16(dnstapObject.Message.GetResponsePort())
+	myDNSResult.DstPort = util.SafeUint32ToUint16(dnstapObject.Message.GetResponsePort())
 	myDNSResult.Protocol = strings.ToLower(dnstapObject.Message.GetSocketProtocol().String())
 
 	message := dnstapObject.Message.GetQueryMessage()
 	if message != nil {
 		// query
-		myDNSResult.Timestamp = time.Unix(int64(dnstapObject.Message.GetQueryTimeSec()), int64(dnstapObject.Message.GetQueryTimeNsec()))
+		myDNSResult.Timestamp = time.Unix(util.SafeUint64ToInt64(dnstapObject.Message.GetQueryTimeSec()), int64(dnstapObject.Message.GetQueryTimeNsec()))
 	} else {
 		// response
-		myDNSResult.Timestamp = time.Unix(int64(dnstapObject.Message.GetResponseTimeSec()), int64(dnstapObject.Message.GetResponseTimeNsec()))
+		myDNSResult.Timestamp = time.Unix(util.SafeUint64ToInt64(dnstapObject.Message.GetResponseTimeSec()), int64(dnstapObject.Message.GetResponseTimeNsec()))
 
 		message = dnstapObject.Message.GetResponseMessage()
 	}
 
-	myDNSResult.PacketLength = uint16(len(message))
+	myDNSResult.PacketLength = util.SafeIntToUint16(len(message))
 	if err := myDNSResult.DNS.Unpack(message); err != nil {
 		return nil, err
 	}

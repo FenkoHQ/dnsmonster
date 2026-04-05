@@ -26,6 +26,7 @@ import (
 	"github.com/gopacket/gopacket"
 	"github.com/gopacket/gopacket/afpacket"
 	"github.com/gopacket/gopacket/layers"
+	"github.com/mosajjal/dnsmonster/internal/util"
 )
 
 type afpacketHandle struct {
@@ -100,7 +101,7 @@ func (config *captureConfig) initializeLiveAFpacket(devName, filter string) *afp
 	frameSize, blockSize, numBlocks, err := afpacketComputeSize(
 		config.AfpacketBuffersizeMb,
 		65536,
-		uint(os.Getpagesize()))
+		util.SafeIntToUint(os.Getpagesize()))
 	if err != nil {
 		log.Fatal(err)
 	}

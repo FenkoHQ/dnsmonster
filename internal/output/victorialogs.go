@@ -149,7 +149,7 @@ func (viConfig victoriaConfig) victoriaOutputWorker(ctx context.Context) {
 
 	flushBatch := func() {
 		s := strings.TrimSuffix(batch.String(), "\n")
-		viConfig.sendBatch(s, int(cnt))
+		viConfig.sendBatch(s, util.SafeUintToInt(cnt))
 		batch.Reset()
 		cnt = 0
 	}
@@ -169,7 +169,7 @@ func (viConfig victoriaConfig) victoriaOutputWorker(ctx context.Context) {
 				cnt++
 				batch.Write(viConfig.outputMarshaller.Marshal(data))
 				batch.WriteString("\n")
-				if int(cnt%viConfig.VictoriaBatchSize) == div {
+				if util.SafeUintToInt(cnt%viConfig.VictoriaBatchSize) == div {
 					flushBatch()
 				}
 			}
@@ -182,7 +182,7 @@ func (viConfig victoriaConfig) victoriaOutputWorker(ctx context.Context) {
 func (viConfig victoriaConfig) Output(ctx context.Context) {
 	defer close(viConfig.closeChannel)
 	var wg sync.WaitGroup
-	for i := 0; i < int(viConfig.VictoriaOutputWorkers); i++ {
+	for i := 0; i < util.SafeUintToInt(viConfig.VictoriaOutputWorkers); i++ {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()

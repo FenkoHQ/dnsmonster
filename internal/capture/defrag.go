@@ -24,6 +24,7 @@ import (
 
 	"github.com/gopacket/gopacket/ip4defrag"
 	"github.com/gopacket/gopacket/layers"
+	"github.com/mosajjal/dnsmonster/internal/util"
 )
 
 // Quick and Easy to use debug code to trace
@@ -160,11 +161,11 @@ func (d *IPv6Defragmenter) securityChecks(ip *layers.IPv6Fragment) (bool, error)
 		return false, fmt.Errorf("defrag: fragment offset too big "+
 			"(handcrafted? %d > %d)", ip.FragmentOffset, IPv6MaximumFragmentOffset)
 	}
-	fragOffset := uint32(ip.FragmentOffset * 8)
+	fragOffset := uint32(ip.FragmentOffset) * 8
 	// don't allow fragment that would oversize an IP packet
-	if fragOffset+uint32(len(ip.Payload)) > IPv6MaximumSize {
+	if fragOffset+util.SafeIntToUint32(len(ip.Payload)) > IPv6MaximumSize {
 		return false, fmt.Errorf("defrag: fragment will overrun "+
-			"(handcrafted? %d > %d)", fragOffset+uint32(len(ip.Payload)), IPv6MaximumFragmentOffset)
+			"(handcrafted? %d > %d)", fragOffset+util.SafeIntToUint32(len(ip.Payload)), IPv6MaximumFragmentOffset)
 	}
 	return true, nil
 }
@@ -210,7 +211,7 @@ func (f *fragmentList) insert(in *layers.IPv6, fragment *layers.IPv6Fragment, t 
 
 	f.LastSeen = t
 
-	fragLength := uint16(len(fragment.Payload))
+	fragLength := util.SafeIntToUint16(len(fragment.Payload))
 	// After inserting the Fragment, we update the counters
 	if f.Highest < fragOffset+fragLength {
 		f.Highest = fragOffset + fragLength
@@ -245,7 +246,7 @@ func (f *fragmentList) build(in *layers.IPv6, fragment *layers.IPv6Fragment) (*l
 		if frag.FragmentOffset*8 == currentOffset {
 			debug.Printf("defrag: building - adding %d\n", frag.FragmentOffset*8)
 			final = append(final, frag.Payload...)
-			currentOffset = currentOffset + uint16(len(frag.Payload))
+			currentOffset = currentOffset + util.SafeIntToUint16(len(frag.Payload))
 		} else {
 			// Houston - we have an hole !
 			debug.Printf("defrag: hole found while building, " +

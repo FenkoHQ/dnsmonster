@@ -100,7 +100,7 @@ func (c influxConfig) connectInflux() influxdb2.Client {
 func (c influxConfig) Output(ctx context.Context) {
 	defer close(c.closeChannel)
 	var wg sync.WaitGroup
-	for i := 0; i < int(c.InfluxOutputWorkers); i++ {
+	for i := 0; i < util.SafeUintToInt(c.InfluxOutputWorkers); i++ {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()

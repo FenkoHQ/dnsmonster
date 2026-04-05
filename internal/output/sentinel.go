@@ -210,7 +210,7 @@ func (seConfig sentinelConfig) Output(ctx context.Context) {
 		s := batch.String()
 		s = strings.TrimSuffix(s, ",")
 		s += "]"
-		seConfig.sendBatch(s, int(cnt))
+		seConfig.sendBatch(s, util.SafeUintToInt(cnt))
 		batch.Reset()
 		batch.WriteString("[")
 		cnt = 0
@@ -229,7 +229,7 @@ func (seConfig sentinelConfig) Output(ctx context.Context) {
 				cnt++
 				batch.Write(seConfig.outputMarshaller.Marshal(data))
 				batch.WriteString(",")
-				if int(cnt%seConfig.SentinelBatchSize) == div {
+				if util.SafeUintToInt(cnt%seConfig.SentinelBatchSize) == div {
 					flushBatch()
 				}
 			}

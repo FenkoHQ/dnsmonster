@@ -68,7 +68,7 @@ func (config fileConfig) Initialize(ctx context.Context) error {
 			LogPath:                string(config.FileOutputPath),
 			TimeTagFormat:          time.RFC3339,
 			FileName:               "dnsmonster",
-			MaxRemain:              int(config.FileOutputRotateCount),
+			MaxRemain:              util.SafeUintToInt(config.FileOutputRotateCount),
 			RollingPolicy:          rollingwriter.TimeRolling,
 			RollingTimePattern:     fmt.Sprintf("0 %s", config.FileOutputRotateCron), // remove the second option from the cron to make it compatible with unix style
 			RollingVolumeSize:      "0",

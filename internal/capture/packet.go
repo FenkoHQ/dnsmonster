@@ -33,7 +33,7 @@ func (config *captureConfig) processTransport(foundLayerTypes *[]gopacket.LayerT
 	for _, layerType := range *foundLayerTypes {
 		switch layerType {
 		case layers.LayerTypeUDP:
-			if uint16(udp.DstPort) == uint16(config.Port) || uint16(udp.SrcPort) == uint16(config.Port) {
+			if uint16(udp.DstPort) == util.SafeUintToUint16(config.Port) || uint16(udp.SrcPort) == util.SafeUintToUint16(config.Port) {
 				msg := mkdns.Msg{}
 				err := msg.Unpack(udp.Payload)
 				// Process if no error or truncated, as it will have most of the information it have available
@@ -50,13 +50,13 @@ func (config *captureConfig) processTransport(foundLayerTypes *[]gopacket.LayerT
 						DstIP:        DstIP.Mask(net.CIDRMask(MaskSize, BitSize)),
 						DstPort:      uint16(udp.DstPort),
 						Protocol:     "udp",
-						PacketLength: uint16(len(udp.Payload)),
+						PacketLength: util.SafeIntToUint16(len(udp.Payload)),
 						SrcPort:      uint16(udp.SrcPort),
 					}
 				}
 			}
 		case layers.LayerTypeTCP:
-			if uint16(tcp.SrcPort) == uint16(config.Port) || uint16(tcp.DstPort) == uint16(config.Port) {
+			if uint16(tcp.SrcPort) == util.SafeUintToUint16(config.Port) || uint16(tcp.DstPort) == util.SafeUintToUint16(config.Port) {
 				config.tcpAssembly <- tcpPacket{
 					IPVersion: IPVersion,
 					tcp:       *tcp,
@@ -164,7 +164,7 @@ func (config *captureConfig) StartPacketDecoder(ctx context.Context) error {
 
 	// Create a single errgroup for all input handler workers
 	g, gCtx := errgroup.WithContext(ctx)
-	for i := 0; i < int(config.PacketHandlerCount); i++ {
+	for i := 0; i < util.SafeUintToInt(config.PacketHandlerCount); i++ {
 		log.Infof("Creating handler #%d", i)
 		g.Go(func() error { return config.inputHandlerWorker(gCtx, config.processingChannel) })
 	}
@@ -194,7 +194,7 @@ func (config *captureConfig) StartPacketDecoder(ctx context.Context) error {
 					SrcIP:        data.SrcIP.Mask(net.CIDRMask(MaskSize, BitSize)),
 					DstIP:        data.DstIP.Mask(net.CIDRMask(MaskSize, BitSize)),
 					Protocol:     "tcp",
-					PacketLength: uint16(len(data.data)),
+					PacketLength: util.SafeIntToUint16(len(data.data)),
 				}
 			}
 		case packet := <-config.ip4DefrggerReturn:

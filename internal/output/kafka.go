@@ -141,7 +141,7 @@ func (kafConfig kafkaConfig) getWriter() *kafka.Writer {
 		Addr:         kafka.TCP(kafConfig.KafkaOutputBroker...),
 		Async:        true,
 		Balancer:     &kafka.LeastBytes{},
-		BatchSize:    int(kafConfig.KafkaBatchSize),
+		BatchSize:    util.SafeUintToInt(kafConfig.KafkaBatchSize),
 		BatchTimeout: kafConfig.KafkaBatchDelay,
 		ErrorLogger:  log.New(),
 		Topic:        kafConfig.KafkaOutputTopic,

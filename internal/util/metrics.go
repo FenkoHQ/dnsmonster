@@ -99,7 +99,7 @@ func (c metricConfig) SetupMetrics(ctx context.Context) error {
 		}
 		g.Go(func() error {
 			http.Handle(u.Path, promhttp.Handler())
-			server := &http.Server{Addr: u.Host}
+			server := &http.Server{Addr: u.Host, ReadHeaderTimeout: 10 * time.Second}
 			
 			// Shutdown gracefully on context cancellation
 			go func() {
