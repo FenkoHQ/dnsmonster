@@ -16,7 +16,7 @@ jobs:
             goarch: arm
             goarm: "7"
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: wangyoucao577/go-release-action@v1
         env:
           CGO_ENABLED: 0 # support alpine
@@ -40,7 +40,7 @@ jobs:
           - goos: windows
             goarch: arm64
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - name: Build Windows binary
         run: |
